@@ -19,7 +19,6 @@ def main():
         screen.fill(config.BACKGROUND_COLOR)  # Fill the screen with a black color (adjust as needed)
 
         rendering.test_cube(rendering.unit_cube_points, screen)
-        # pygame.draw.circle(screen, (0,0,0) , (100,100), 5)
         
         # Refresh the screen
         pygame.display.flip()
