@@ -3,7 +3,10 @@ import numpy
 from config import SCREEN_HEIGHT, SCREEN_WIDTH
 
 aspect_ratio = SCREEN_WIDTH/SCREEN_HEIGHT
-fov = 90
+fov_angle = 90
+fov = 1.0 / math.tan(fov_angle/2.0)
+z_far = 20
+z_near = 3
 
 
 # Precalculated starting points for a cube
@@ -18,7 +21,7 @@ points = [
 (395, 275)
 ]
 
-original_points = [
+unit_cube_points = [
 [-1, 1, 1],
 [-1, -1, 1],
 [1, -1, 1],
@@ -29,9 +32,6 @@ original_points = [
 [1, 1, -1]
 ]
 
-# Updated list of points are sotred here
-rotated_3d_points = [list(point) for point in original_points]
-
 def calculate_projection(points):
     
     # Make a copy of 3d points
@@ -41,15 +41,15 @@ def calculate_projection(points):
     
     # Projection matrix formula
 	projection_matrix = [
-	[1,0,0,0],
-	[0,1,0,0],
-	[0,0,1,0],
-	[0,0,1,0]
+	[fov * aspect_ratio,0,0,0],
+	[0,fov,0,0],
+	[0,0,(z_far+z_near)/(z_far-z_near),1],
+	[0,0,(2*z_near*z_far)/(z_near-z_far),0]
 	]
     
+    # Multiply matrices
 	res = numpy.dot(point_matrix, projection_matrix)
-    
 	return res
 
 
-print(calculate_projection([1,2,3]))
+print(calculate_projection([-5,5,5]))
