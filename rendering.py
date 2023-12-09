@@ -4,23 +4,10 @@ from config import SCREEN_HEIGHT, SCREEN_WIDTH
 from pygame import draw
 
 aspect_ratio = SCREEN_WIDTH/SCREEN_HEIGHT
-fov_angle = math.radians(101)
+fov_angle = math.radians(90)
 fov = 1.0 / math.tan(fov_angle/2.0)
 z_far = 100
 z_near = 3
-
-
-# Precalculated starting points for a cube
-points = [
-(342.5, 257.5),
-(342.5, 222.5),
-(377.5, 222.5),
-(377.5, 257.5),
-(325, 275),
-(325, 205),
-(395, 205),
-(395, 275)
-]
 
 unit_cube_points = [
 [-1, 1, 8],
@@ -32,7 +19,6 @@ unit_cube_points = [
 [1, -1, 10],
 [1, 1, 10]
 ]
-
 
 # convert a 3d point to screen space (2d)
 def calculate_point(coords):
@@ -68,5 +54,3 @@ def test_cube(points, surface):
         point_2d = calculate_point(point)
         screen_point = convert_to_screen_space(point_2d)
         draw.circle(surface, (0,0,0) , screen_point, 5)
-        
-# test_cube(unit_cube_points)
