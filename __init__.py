@@ -2,8 +2,6 @@
 
 import pygame
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
-# from entities.player import Player  # Import your Player class or module
-# from entities.enemy import Enemy    # Import your Enemy class or module
 
 def initialize_game():
     pygame.init()

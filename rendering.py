@@ -4,7 +4,7 @@ from config import SCREEN_HEIGHT, SCREEN_WIDTH
 from pygame import draw
 
 aspect_ratio = SCREEN_WIDTH/SCREEN_HEIGHT
-fov_angle = math.radians(90)
+fov_angle = math.radians(30)
 fov = 1.0 / math.tan(fov_angle/2.0)
 z_far = 100
 z_near = 3
@@ -20,6 +20,14 @@ unit_cube_points = [
 [1, 1, 10]
 ]
 
+unit_pyramid_points = [
+[-1, -1, 8],
+[1, -1, 8],
+[-1, -1, 10],
+[1, -1, 10],
+[0 , 0.5, 9]
+]
+
 # convert a 3d point to screen space (2d)
 def calculate_point(coords):
     
@@ -32,7 +40,7 @@ def calculate_point(coords):
 	projection_matrix = [
 	[fov,0,0,0],
 	[0,fov * aspect_ratio ,0,0],
-	[0,0,(z_far+z_near)/(z_far-z_near),1],
+	[0,0,(z_far+z_near)/(z_far-z_near),-1],
 	[0,0,(2*z_near*z_far)/(z_near-z_far),0]
 	]
     

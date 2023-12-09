@@ -18,7 +18,7 @@ def main():
         # Draw graphics
         screen.fill(config.BACKGROUND_COLOR)  # Fill the screen with a black color (adjust as needed)
 
-        rendering.test_cube(rendering.unit_cube_points, screen)
+        rendering.test_cube(rendering.unit_pyramid_points, screen)
         
         # Refresh the screen
         pygame.display.flip()
