@@ -1,32 +1,12 @@
 import math
 import numpy
 from config import SCREEN_HEIGHT, SCREEN_WIDTH
-from pygame import draw
 
 aspect_ratio = SCREEN_WIDTH/SCREEN_HEIGHT
-fov_angle = math.radians(30)
+fov_angle = math.radians(90)
 fov = 1.0 / math.tan(fov_angle/2.0)
-z_far = 100
-z_near = 3
-
-unit_cube_points = [
-[-1, 1, 8],
-[-1, -1, 8],
-[1, -1, 8],
-[1, 1, 8],
-[-1, 1, 10],
-[-1, -1, 10],
-[1, -1, 10],
-[1, 1, 10]
-]
-
-unit_pyramid_points = [
-[-1, -1, 8],
-[1, -1, 8],
-[-1, -1, 10],
-[1, -1, 10],
-[0 , 0.5, 9]
-]
+z_far = 1000
+z_near = .1
 
 # convert a 3d point to screen space (2d)
 def calculate_point(coords):
@@ -39,8 +19,8 @@ def calculate_point(coords):
     # Projection matrix formula
 	projection_matrix = [
 	[fov,0,0,0],
-	[0,fov * aspect_ratio ,0,0],
-	[0,0,(z_far+z_near)/(z_far-z_near),-1],
+	[0,-fov * aspect_ratio ,0,0],
+	[0,0,(z_far+z_near)/(z_far-z_near),1],
 	[0,0,(2*z_near*z_far)/(z_near-z_far),0]
 	]
     
@@ -56,9 +36,3 @@ def convert_to_screen_space(coords):
     new_y = (y * SCREEN_HEIGHT) / (2.0 * w) + (SCREEN_HEIGHT/2)
     
     return [new_x,new_y]
-
-def test_cube(points, surface):
-    for point in points:
-        point_2d = calculate_point(point)
-        screen_point = convert_to_screen_space(point_2d)
-        draw.circle(surface, (0,0,0) , screen_point, 5)

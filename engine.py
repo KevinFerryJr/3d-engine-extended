@@ -1,7 +1,7 @@
 import pygame
 from __init__ import initialize_game
 import config
-import rendering
+import utils
 
 def main():
     # Initialize Pygame and game entities
@@ -18,7 +18,7 @@ def main():
         # Draw graphics
         screen.fill(config.BACKGROUND_COLOR)  # Fill the screen with a black color (adjust as needed)
 
-        rendering.test_cube(rendering.unit_pyramid_points, screen)
+        utils.cube_mesh.draw_mesh(screen)
         
         # Refresh the screen
         pygame.display.flip()
