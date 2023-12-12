@@ -38,7 +38,7 @@ class polygon:
         
 
 class mesh:
-    def __init__(self, mesh_data, mesh_rotation = [30,0,0], mesh_position = [0,0,4]):
+    def __init__(self, mesh_data, mesh_rotation = [0,0,0], mesh_position = [0,0,6]):
         self.rotation = mesh_rotation
         self.position = mesh_position
         self.polygons = self.define_mesh(mesh_data)

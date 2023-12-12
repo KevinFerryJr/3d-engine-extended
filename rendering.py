@@ -10,7 +10,6 @@ z_near = 0.1
 
 # convert a 3d point to screen space (2d)
 def calculate_point(vec3d):
-    print(vec3d)
     # Make a copy of 3d points
     point_matrix = [float(coord) for coord in vec3d.coords]
     
@@ -28,8 +27,8 @@ def calculate_point(vec3d):
     
     # Projection matrix formula
     projection_matrix = [
-        [fov, 0, 0, 0],
-        [0, -fov * aspect_ratio, 0, 0],
+        [1/fov, 0, 0, 0],
+        [0,1/-fov * aspect_ratio, 0, 0],
         [0, 0, (z_far + z_near) / (z_far - z_near), 1],
         [0, 0, (2 * z_near * z_far) / (z_near - z_far), 0]
     ]
