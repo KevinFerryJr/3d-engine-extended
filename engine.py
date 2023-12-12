@@ -18,7 +18,13 @@ def main():
         # Draw graphics
         screen.fill(config.BACKGROUND_COLOR)  # Fill the screen with a black color (adjust as needed)
 
+        utils.cube_mesh.update_mesh()
         utils.cube_mesh.draw_mesh(screen)
+        
+        utils.cube_mesh.rotation[0] += 1
+        utils.cube_mesh.rotation[1] += 1
+        
+        print(utils.cube_mesh.rotation)
         
         # Refresh the screen
         pygame.display.flip()

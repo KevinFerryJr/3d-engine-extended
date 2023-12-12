@@ -2,25 +2,35 @@ from rendering import calculate_point, convert_to_screen_space
 from pygame import draw
 
 class vec3d:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.coord = (self.x,self.y,self.z)
-        self.coord_trans = self.update_vec3d()
+    def __init__(self, coords, parent):
+        self.polygon = parent
+        self.x = coords[0]
+        self.y = coords[1]
+        self.z = coords[2]
+        self.coords = (self.x,self.y,self.z)
+        self.coords_2d = []
+        
+        # Initialize first 2d value
+        self.update_vec3d()
         
     def update_vec3d(self):
-        point2d = calculate_point(self.coord)
+        point2d = calculate_point(self)
         point2d = convert_to_screen_space(point2d)
-        return (point2d[0], point2d[1])
+        res = [point2d[0], point2d[1]]
+        self.coords_2d = res
 
 class polygon:
-    def __init__(self, points):
-        self.verts = points
+    def __init__(self, points, parent):
+        self.mesh = parent
+        self.verts = [vec3d(point, self) for point in points]
         
+    def update_polygon(self):
+        for vert in self.verts:
+            vert.update_vec3d()
+    
     def draw_polygon(self, surface):
         # Create a list of tuples with the vert coordinates translated into screen space
-        screen_points = [tuple(v.coord_trans) for v in self.verts]
+        screen_points = [tuple(v.coords_2d) for v in self.verts]
         
         draw.line(surface, (0,0,0), screen_points[0], screen_points[1], 3)
         draw.line(surface, (0,0,0), screen_points[1], screen_points[2], 3)
@@ -28,54 +38,43 @@ class polygon:
         
 
 class mesh:
-    def __init__(self, mesh_data):
+    def __init__(self, mesh_data, mesh_rotation = [30,0,0], mesh_position = [0,0,4]):
+        self.rotation = mesh_rotation
+        self.position = mesh_position
         self.polygons = self.define_mesh(mesh_data)
     
-    def define_mesh(self, mesh_data):
-        # Container for all polygons in the mesh
-        polygons = []
-        # Loop through all the polygon point groups
-        for poly in mesh_data:
-            # container for new polygons vec3s
-            poly_data = []
-            #loop through all the points in the group
-            for point in poly:
-                new_vec = vec3d(point[0],point[1],point[2])
-                poly_data.append(new_vec)
-            
-            # Init new poly and append it to the list
-            new_polygon = polygon(poly_data)
-            print(new_polygon)
-            polygons.append(new_polygon)
-            
+    def define_mesh(self, mesh_coords):
+        polygons = [polygon(poly, self) for poly in mesh_coords]
         #return the new list of polygons
         return polygons
-            
+
+    def update_mesh(self):
+        for poly in self.polygons:
+            poly.update_polygon()
+    
     def draw_mesh(self, surface):
         for poly in self.polygons:
-            # print(poly)
             poly.draw_polygon(surface)
-            
 
 unit_cube_polys = [
 #South
-[[-1,-1,3],[-1,1,3],[1,1,3]],
-[[-1,-1,3],[1,1,3],[1,-1,3]],
+[[-1,-1,-1],[-1,1,-1],[1,1,-1]],
+[[-1,-1,-1],[1,1,-1],[1,-1,-1]],
 #East
-[[1,-1,3],[1,1,3],[1,1,5]],
-[[1,-1,3],[1,1,5],[1,-1,5]],
+[[1,-1,-1],[1,1,-1],[1,1,1]],
+[[1,-1,-1],[1,1,1],[1,-1,1]],
 # # # # #North
-[[1,-1,5],[1,1,5],[-1,1,5]],
-[[1,-1,5],[-1,1,5],[-1,-1,5]],
+[[1,-1,1],[1,1,1],[-1,1,1]],
+[[1,-1,1],[-1,1,1],[-1,-1,1]],
 # # # # #West
-[[-1,-1,5],[-1,1,5],[-1,1,3]],
-[[-1,-1,5],[-1,1,3],[-1,-1,3]],
+[[-1,-1,1],[-1,1,1],[-1,1,-1]],
+[[-1,-1,1],[-1,1,-1],[-1,-1,-1]],
 # # # # #Up
-[[1,1,3],[1,1,5],[-1,1,5]],
-[[1,1,3],[-1,1,5],[-1,1,3]],
+[[1,1,-1],[1,1,1],[-1,1,1]],
+[[1,1,-1],[-1,1,1],[-1,1,-1]],
 # # # # #Down
-[[1,-1,5],[-1,-1,3],[1,-1,3]],
-[[1,-1,5],[-1,-1,3],[-1,-1,5]]
+[[1,-1,1],[-1,-1,-1],[1,-1,-1]],
+[[1,-1,1],[-1,-1,-1],[-1,-1,1]]
 ]
 
 cube_mesh = mesh(unit_cube_polys)
