@@ -9,23 +9,8 @@ z_far = 1000
 z_near = 0.1
 
 # convert a 3d point to screen space (2d)
-def calculate_point(vec3d):
-    # Make a copy of 3d points
-    point_matrix = [float(coord) for coord in vec3d.coords]
-    
-    # Add 1 to the matrix array
-    point_matrix.append(1)
-    
-    #rotate point
-    rotated_point_matrix = rotate_vec3d(point_matrix, vec3d.polygon.mesh.rotation)
-    
-    #translate points
-    translated_point_matrix = translate_vec3d(rotated_point_matrix,vec3d.polygon.mesh.position)
-    
-    #store final matrix here after transformations
-    final_point_matrix = translated_point_matrix
-    
-    # Projection matrix formula
+def calculate_point(point_matrix):
+
     projection_matrix = [
         [1/fov, 0, 0, 0],
         [0,1/-fov * aspect_ratio, 0, 0],
@@ -34,7 +19,7 @@ def calculate_point(vec3d):
     ]
     
     # Multiply matrices
-    res = numpy.dot(final_point_matrix, projection_matrix)
+    res = numpy.dot(point_matrix, projection_matrix)
     return res
 
 def convert_to_screen_space(coords):
@@ -46,9 +31,11 @@ def convert_to_screen_space(coords):
     
     return [new_x, new_y]
 
-def rotate_vec3d(coord_mat, rotation):
+def rotate_vec3d(coords, rotation):
     # Convert angles from degrees to radians
     rotation = numpy.radians(rotation)
+    coord_mat = [(coord) for coord in coords]
+    coord_mat.append(1)
 
     # Z-axis rotation matrix
     z_rotation_matrix = numpy.array([
@@ -84,6 +71,9 @@ def rotate_vec3d(coord_mat, rotation):
 def translate_vec3d(coord_mat, trans):
     trans_vecs = [(t) for t in trans]
     trans_vecs.append(1)
+    
+    if len(coord_mat) < 4:
+        coord_mat.append(1)
     
     translate_matrix =[
     [1,0,0,0],
