@@ -18,52 +18,56 @@ class Vec3D:
     def update_vec3d(self):
         matrix_rotated = rendering.rotate_vec3d(self.coords, self.polygon.mesh.rotation)
         matrix_translated = rendering.translate_vec3d(matrix_rotated, self.polygon.mesh.position)
-        matrix_projected = rendering.calculate_point(matrix_translated)
-        matrix_adjusted = rendering.convert_to_screen_space(matrix_projected)
-        
         self.world_coords = [matrix_translated[i] for i in range(3)]
-        self.coords_2d = [matrix_adjusted[0], matrix_adjusted[1]]
+        
+        if self.polygon.facing:
+            matrix_projected = rendering.calculate_point(matrix_translated)
+            matrix_adjusted = rendering.convert_to_screen_space(matrix_projected)
+            self.coords_2d = [matrix_adjusted[0], matrix_adjusted[1]]
 
 class Polygon:
     def __init__(self, points, parent):
         self.mesh = parent
-        self.verts = [Vec3D(point, self) for point in points]
         self.normal = [0,0,0]
         self.facing = False
+        self.verts = [Vec3D(point, self) for point in points]
+        self.z_depth = [0,0,0]
         self.update_polygon()
         
     def update_polygon(self):
         self.normal = self.calculate_normal()
-        self.facing = self.is_facing(self.normal)
+        self.facing = self.is_facing()
+        self.z_depth = self.calculate_z_depth()
         for vert in self.verts:
                 vert.update_vec3d()
     
     def draw_polygon(self, surface):
         # Check if we should be rendering this polygon
         if self.facing:
-        
-            # # Create a list of tuples with the vert coordinates translated into screen space
-            # screen_points = [tuple(v.coords_2d) for v in self.verts]
-            
-            # # Draw the wire frame
-            # draw.line(surface, config.LINE_COLOR, screen_points[0], screen_points[1], 3)
-            # draw.line(surface, config.LINE_COLOR, screen_points[1], screen_points[2], 3)
-            # draw.line(surface, config.LINE_COLOR, screen_points[2], screen_points[0], 3)
-            
             poly_color = self.calculate_shading()
             draw.polygon(surface, poly_color, [(v.coords_2d) for v in self.verts])
         
-    def is_facing(self, normal):
+    def is_facing(self):
         coords = self.verts[0].world_coords
         normal_matrix = [
             ([coords[i] - viewport.position[i], 0, 0]) for i in range(3)
         ]
         
-        result = numpy.dot(normal, normal_matrix)[0]
+        result = numpy.dot(self.normal, normal_matrix)[0]
         if result < 0:
             return True
         else:
             return False
+    
+    def calculate_z_depth(self):
+        z_coords = [(v.world_coords[2]) for v in self.verts]
+        new_z_depth = 0
+
+        for c in z_coords:
+            new_z_depth += c
+            
+        new_z_depth /= 3
+        return new_z_depth
     
     def calculate_normal(self):
         coords = [vert.coords for vert in self.verts]
@@ -88,7 +92,7 @@ class Polygon:
         light_direction = [coord / l_length for coord in light_direction]
         
         # Get current normal direction
-        normal_direction = [self.calculate_normal()[i] for i in range(3)]
+        normal_direction = [self.normal[i] for i in range(3)]
         
         # Calculate the difference between our normal and our light direction
         color_scalar = numpy.dot(normal_direction, light_direction)
@@ -99,7 +103,8 @@ class Polygon:
         return poly_color
 
 class Mesh:
-    def __init__(self, mesh_data, mesh_rotation=[0, 0, 0], mesh_position=[2, 0, 4]):
+    def __init__(self, mesh_data, name="unknown", mesh_rotation=[0, 0, 0], mesh_position=[0, 0, 4]):
+        self.name = name
         self.rotation = mesh_rotation
         self.position = mesh_position
         self.polygons = self.define_mesh(mesh_data)
@@ -110,6 +115,9 @@ class Mesh:
         return polygons
 
     def update_mesh(self):
+        # Sort polygons from furthest to nearest
+        self.polygons.sort(key=lambda poly: poly.z_depth, reverse=True)
+        # Update all the polygons in order
         for poly in self.polygons:
             poly.update_polygon()
     
@@ -121,50 +129,9 @@ class Camera:
     def __init__(self):
         self.position = [0, 0, 0]
 
+# Create a single instance of the Camera
 viewport = Camera()
 
-unit_cube_polys = [
-    # South
-    [[-1, -1, -1], [-1, 1, -1], [1, 1, -1]],
-    [[-1, -1, -1], [1, 1, -1], [1, -1, -1]],
-    # East
-    [[1, -1, -1], [1, 1, -1], [1, 1, 1]],
-    [[1, -1, -1], [1, 1, 1], [1, -1, 1]],
-    # North
-    [[1, -1, 1], [1, 1, 1], [-1, 1, 1]],
-    [[1, -1, 1], [-1, 1, 1], [-1, -1, 1]],
-    # West
-    [[-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
-    [[-1, -1, 1], [-1, 1, -1], [-1, -1, -1]],
-    # Up
-    [[1, 1, 1], [1, 1, -1], [-1, 1, -1]],
-    [[1, 1, 1], [-1, 1, -1], [-1, 1, 1]],
-    # Down
-    [[-1, -1, 1], [-1, -1, -1], [1, -1, -1]],
-    [[1, -1, 1], [-1, -1, 1], [1, -1, -1]]
-]
-
-unit_cube_polys_centered = [
-    # South
-    [[0, 0, 0], [0, 1, 0], [1, 1, 0]],
-    [[0, 0, 0], [1, 1, 0], [1, 0, 0]],
-    # East
-    [[1, 0, 0], [1, 1, 0], [1, 1, 1]],
-    [[1, 0, 0], [1, 1, 1], [1, 0, 1]],
-    # North
-    [[1, 0, 1], [1, 1, 1], [0, 1, 1]],
-    [[1, 0, 1], [0, 1, 1], [0, 0, 1]],
-    # West
-    [[0, 0, 1], [0, 1, 1], [0, 1, 0]],
-    [[0, 0, 1], [0, 1, 0], [0, 0, 0]],
-    # Up
-    [[1, 1, 1], [1, 1, 0], [0, 1, 0]],
-    [[1, 1, 1], [0, 1, 0], [0, 1, 1]],
-    # Down
-    [[1, 0, 0], [0, 0, 0], [0, 0, 1]],
-    [[1, 0, 0], [0, 0, 1], [1, 0, 1]]
-]
-
-viewport = Camera()
-cube_mesh = Mesh(rendering.read_obj_file("sphere.obj"))
-
+sphere_mesh = Mesh(rendering.read_obj_file("sphere.obj"),"sphere",[0,0,0],[0,0,4])
+cube_mesh = Mesh(rendering.read_obj_file("cube.obj"),"cube",[0,0,0],[0,0,4])
+meshes = [sphere_mesh, cube_mesh]
