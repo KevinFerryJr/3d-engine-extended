@@ -3,6 +3,7 @@ from __init__ import initialize_game
 import config
 import utils
 import math
+import cProfile
 
 def main():
     # Initialize Pygame and game entities
@@ -23,13 +24,13 @@ def main():
         utils.cube_mesh.update_mesh()
         utils.cube_mesh.draw_mesh(screen)
         
-        utils.cube_mesh.rotation[0] += 2
-        utils.cube_mesh.rotation[1] += 2
+        utils.cube_mesh.rotation[0] += 20
+        utils.cube_mesh.rotation[1] += 0
         
-        translate_counter +=0.01
-        utils.cube_mesh.position[0] = math.sin(translate_counter)*4
-        # utils.cube_mesh.position[1] = math.cos(translate_counter)
-        utils.cube_mesh.position[2] = math.cos(translate_counter) + 5
+        # translate_counter +=0.01
+        # utils.cube_mesh.position[0] = math.sin(translate_counter)*4
+        # # utils.cube_mesh.position[1] = math.cos(translate_counter)
+        # utils.cube_mesh.position[2] = math.cos(translate_counter) + 5
         
         # Refresh the screen
         pygame.display.flip()
@@ -40,4 +41,5 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    cProfile.run("main()", sort="cumtime")
+    # main()
