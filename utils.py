@@ -28,24 +28,24 @@ class Polygon:
     def __init__(self, points, parent):
         self.mesh = parent
         self.verts = [Vec3D(point, self) for point in points]
-        self.normal = Vec3D([0, 0, 0], self)
-        
-        # Initialize normal
-        self.calculate_normal()
+        self.normal = [0,0,0]
+        self.facing = False
+        self.update_polygon()
         
     def update_polygon(self):
+        self.normal = self.calculate_normal()
+        self.facing = self.is_facing(self.normal)
         for vert in self.verts:
-            if self.is_facing():
                 vert.update_vec3d()
     
     def draw_polygon(self, surface):
         # Check if we should be rendering this polygon
-        if self.is_facing():
+        if self.facing:
         
-            # Create a list of tuples with the vert coordinates translated into screen space
-            screen_points = [tuple(v.coords_2d) for v in self.verts]
+            # # Create a list of tuples with the vert coordinates translated into screen space
+            # screen_points = [tuple(v.coords_2d) for v in self.verts]
             
-            # Draw the wire frame
+            # # Draw the wire frame
             # draw.line(surface, config.LINE_COLOR, screen_points[0], screen_points[1], 3)
             # draw.line(surface, config.LINE_COLOR, screen_points[1], screen_points[2], 3)
             # draw.line(surface, config.LINE_COLOR, screen_points[2], screen_points[0], 3)
@@ -53,9 +53,8 @@ class Polygon:
             poly_color = self.calculate_shading()
             draw.polygon(surface, poly_color, [(v.coords_2d) for v in self.verts])
         
-    def is_facing(self):
+    def is_facing(self, normal):
         coords = self.verts[0].world_coords
-        normal = self.calculate_normal()
         normal_matrix = [
             ([coords[i] - viewport.position[i], 0, 0]) for i in range(3)
         ]
@@ -95,12 +94,12 @@ class Polygon:
         color_scalar = numpy.dot(normal_direction, light_direction)
         color_scalar_normalized = ((color_scalar / l_length) + 1) / 2
 
-        shade = color_scalar_normalized * 255
+        shade = color_scalar_normalized * 230 + 25
         poly_color = [shade, shade, shade]
         return poly_color
 
 class Mesh:
-    def __init__(self, mesh_data, mesh_rotation=[0, 0, 0], mesh_position=[0, 0, 4]):
+    def __init__(self, mesh_data, mesh_rotation=[0, 0, 0], mesh_position=[2, 0, 4]):
         self.rotation = mesh_rotation
         self.position = mesh_position
         self.polygons = self.define_mesh(mesh_data)
@@ -167,5 +166,5 @@ unit_cube_polys_centered = [
 ]
 
 viewport = Camera()
-cube_mesh = Mesh(rendering.read_obj_file("monkey.obj"))
+cube_mesh = Mesh(rendering.read_obj_file("sphere.obj"))
 

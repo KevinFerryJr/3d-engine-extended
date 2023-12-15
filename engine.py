@@ -24,22 +24,21 @@ def main():
         utils.cube_mesh.update_mesh()
         utils.cube_mesh.draw_mesh(screen)
         
-        utils.cube_mesh.rotation[0] += 20
-        utils.cube_mesh.rotation[1] += 0
+        utils.cube_mesh.rotation[0] += 1
+        utils.cube_mesh.rotation[1] += 1
         
-        # translate_counter +=0.01
-        # utils.cube_mesh.position[0] = math.sin(translate_counter)*4
-        # # utils.cube_mesh.position[1] = math.cos(translate_counter)
-        # utils.cube_mesh.position[2] = math.cos(translate_counter) + 5
+        translate_counter +=0.01
+        utils.cube_mesh.position[0] = math.sin(translate_counter)*4
+        # utils.cube_mesh.position[1] = math.cos(translate_counter)
+        utils.cube_mesh.position[2] = math.cos(translate_counter) + 5
         
         # Refresh the screen
         pygame.display.flip()
             
         # Control the frame rate
         clock.tick(config.FRAMERATE)  # Adjust the frame rate as needed
-
     pygame.quit()
 
 if __name__ == "__main__":
-    cProfile.run("main()", sort="cumtime")
-    # main()
+    # cProfile.run("main()", sort="cumtime")
+    main()

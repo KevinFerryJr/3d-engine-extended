@@ -11,15 +11,15 @@ fov_inv = 1.0 / fov
 z_far = 1000
 z_near = 0.1
 
+#Precalculated projection matrix
+projection_matrix = [
+[fov_inv, 0, 0, 0],
+[0, 1 / -fov * aspect_ratio, 0, 0],
+[0, 0, (z_far + z_near) / (z_near - z_far), 1],
+[0, 0, (2 * z_near * z_far) / (z_near - z_far), 0]
+]
+
 def calculate_point(point_matrix):
-    #Common Matrices
-    projection_matrix = [
-    [fov_inv, 0, 0, 0],
-    [0, 1 / -fov * aspect_ratio, 0, 0],
-    [0, 0, (z_far + z_near) / (z_near - z_far), 1],
-    [0, 0, (2 * z_near * z_far) / (z_near - z_far), 0]
-    ]
-    
     # Multiply matrices
     res = numpy.dot(point_matrix, projection_matrix)
     return res
